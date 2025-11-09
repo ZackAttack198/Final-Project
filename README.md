@@ -17,8 +17,10 @@ A screensaver, similar to the digital rain lab, that depicts a looping animation
 # Features
 Looping animation
 - The program will run a somewhat simple looping pixel animation of a flying car driving past a city.
+
 Twinkling stars
 - The program will randomly spawn small particles in the area representing the sky, which periodically blink.
+
 Fireworks
 - By mouse-clicking while the program is running, the user can spawn a firework animation.
 
@@ -32,23 +34,21 @@ Fireworks
 
 # Outcomes
 
-Ideal outcome:
-A looping animation created from image sequences that already exist on my computer, with randomly twinkling stars in the sky. Users can also left mouse click on the program to spawn a randomly-colored firework animation.
+Ideal outcome: A looping animation created from image sequences that already exist on my computer, with randomly twinkling stars in the sky. Users can also left mouse click on the program to spawn a randomly-colored firework animation.
 
-Minimum viable outcome:
-A looping animation created from image sequences that already exist on my computer, with stars in the sky that twinkle simultaneously. Users can also left mouse click on the program to spawn a red firework animation.
+Minimum viable outcome: A looping animation created from image sequences that already exist on my computer, with stars in the sky that twinkle simultaneously. Users can also left mouse click on the program to spawn a red firework animation.
 
 
 # Milestones
 
 Week 1:
-Using a pixel art app, draw the images for my first sequence, which is of the car on the road.
+- Using a pixel art app, draw the images for my first sequence, which is of the car on the road.
 
 Week 2:
-Using a pixel art app, draw the images for my second sequence, which is of the city in the background.
+- Using a pixel art app, draw the images for my second sequence, which is of the city in the background.
 
 Week 3:
-Using a pixel art app, draw the images for my firework animation.
+- Using a pixel art app, draw the images for my firework animation.
 
 Week 4:
 1. Learn how to create looping animations from my drawn images (non-looping for the firework animation).
