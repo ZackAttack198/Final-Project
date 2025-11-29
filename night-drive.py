@@ -1,6 +1,4 @@
 import pygame
-import glob
-import os
 import math
 import random
 
@@ -57,7 +55,14 @@ class Stars():
         self.pos = pos
         self.size = size
         self.color = pygame.Color(189, 246, 255)
+        self.age = 0
+        self.alpha = 255
         self.surface = self.update_surface()
+
+    def twinkle(self, dt):
+        rand_multiplier = random.uniform(0.1, 0.9)
+        self.age += dt
+        self.alpha = 255 * (math.sin(math.radians(self.age*rand_multiplier)) + 1) / 2
 
     def update_surface(self):
         surf = pygame.Surface((self.size, self.size))
@@ -65,7 +70,8 @@ class Stars():
         return surf
 
     def draw(self, surface):
-	    surface.blit(self.surface, self.pos)
+        self.surface.set_alpha(self.alpha)
+        surface.blit(self.surface, self.pos)
 
 
 class Firework():
@@ -87,11 +93,11 @@ def main():
     scaled_img = pygame.transform.scale(car_img, resolution)
     road = Road(y=resolution[1]-220, tile_width=500, height=220)
     stars = []
-    for num in range (100):
-        rand_pos = random.randrange(0, (resolution[0]-9)),
-        (0, random.randrange(391))
+    for num in range (150):
+        rand_pos_X = random.randrange(0, (resolution[0]-9))
+        rand_pos_y = random.randrange(0, 251)
+        rand_pos = (rand_pos_X, rand_pos_y)
         stars.append(Stars(pos=rand_pos))
-
 
     # game logic
     running = True
@@ -107,7 +113,8 @@ def main():
         road.scroll()
         screen.blit(scaled_img, (0, 0))
         for star in stars:
-            Stars.draw(screen)
+            star.twinkle(dt)
+            star.draw(screen)
         pygame.display.flip()
         dt = clock.tick(30)
     pygame.quit()
