@@ -5,7 +5,7 @@ import random
 
 class Road():
 
-    def __init__(self, y, tile_width=500, height=220, speed=10,
+    def __init__(self, y, tile_width=500, height=220, speed=12,
                  road_color=(60, 60, 60), dash_color=(255, 200, 0)):
         self.y = y
         self.tile_width = tile_width
@@ -45,9 +45,45 @@ class Road():
         
 class Skyline():
 
-    def __init__(self):
-        pass
+    def __init__(self, y_base, speed=2, color=(78, 0, 78)):
+        self.y_base = y_base
+        self.speed = speed
+        self.color = color
 
+        self.chunk_width = 600
+        self.offset = 0
+
+        self.building_chunks = [
+            (0, y_base - 160, 60, 160),
+            (60, y_base - 360, 100, 360),
+            (160, y_base - 200, 60, 200),
+            (220, y_base - 300, 80, 300),
+            (300, y_base - 120, 50, 120),
+            (350, y_base - 260, 70, 260),
+            (420, y_base - 320, 100, 320),
+            (520, y_base - 190, 80, 190)
+        ]
+
+    def draw(self, surface):
+        screen_width = surface.get_width()
+
+        num_chunks = (screen_width // self.chunk_width) + 2
+
+        for num in range(num_chunks):
+            chunk_x = self.offset + num * self.chunk_width
+
+            for x, y, width, height in self.building_chunks:
+                pygame.draw.rect(
+                    surface,
+                    self.color,
+                    pygame.Rect(x + chunk_x, y, width, height)
+                )
+
+    def scroll(self):
+        self.offset -= self.speed
+        if self.offset <= -self.chunk_width:
+            self.offset = 0
+            
 
 class Stars():
 
@@ -60,7 +96,7 @@ class Stars():
         self.surface = self.update_surface()
 
     def twinkle(self, dt):
-        rand_multiplier = random.uniform(0.1, 0.9)
+        rand_multiplier = random.uniform(0.1, 0.5)
         self.age += dt
         self.alpha = 255 * (math.sin(math.radians(self.age*rand_multiplier)) + 1) / 2
 
@@ -89,9 +125,12 @@ def main():
     height = pygame.display.Info().current_h
     resolution = (width, height)
     screen = pygame.display.set_mode(resolution)
+
+    # class elements
     car_img = pygame.image.load("flying_car.png")
     scaled_img = pygame.transform.scale(car_img, resolution)
     road = Road(y=resolution[1]-220, tile_width=500, height=220)
+    skyline = Skyline(y_base=(resolution[1]-219), speed=2, color=(78, 0, 78))
     stars = []
     for num in range (150):
         rand_pos_X = random.randrange(0, (resolution[0]-9))
@@ -109,6 +148,8 @@ def main():
                 if event.key == pygame.K_ESCAPE:
                     running = False
         screen.fill((0, 0, 35))
+        skyline.draw(screen)
+        skyline.scroll()
         road.draw(screen)
         road.scroll()
         screen.blit(scaled_img, (0, 0))
