@@ -50,18 +50,18 @@ class Skyline():
         self.speed = speed
         self.color = color
 
-        self.chunk_width = 600
+        self.chunk_width = 660
         self.offset = 0
 
         self.building_chunks = [
-            (0, y_base - 160, 60, 160),
-            (60, y_base - 360, 100, 360),
-            (160, y_base - 200, 60, 200),
-            (220, y_base - 300, 80, 300),
-            (300, y_base - 120, 50, 120),
-            (350, y_base - 260, 70, 260),
-            (420, y_base - 320, 100, 320),
-            (520, y_base - 190, 80, 190)
+            (0, y_base - 160, 72, 160),
+            (72, y_base - 360, 100, 360),
+            (172, y_base - 190, 58, 190),
+            (230, y_base - 300, 86, 300),
+            (316, y_base - 120, 72, 120),
+            (388, y_base - 260, 86, 260),
+            (474, y_base - 320, 100, 320),
+            (574, y_base - 220, 86, 220)
         ]
 
     def draw(self, surface):
@@ -78,6 +78,28 @@ class Skyline():
                     self.color,
                     pygame.Rect(x + chunk_x, y, width, height)
                 )
+                self.draw_windows(surface, x + chunk_x, y, width, height)
+
+    def draw_windows(self, surface, building_x, building_y, width, height):
+        window_color = (0, 170, 255)
+        window_width = 8
+        window_height = 12
+        spacing_x = 6
+        spacing_y = 10
+
+        start_x = building_x + 10
+        start_y = building_y + 10
+
+        y = start_y
+        while y + window_height < building_y + height - 10:
+            x = start_x
+            while x + window_width < building_x + width - 10:
+
+                    pygame.draw.rect(surface, window_color,
+                                    pygame.Rect(x, y, window_width, window_height))
+                    
+                    x += window_width + spacing_x
+            y += window_height + spacing_y
 
     def scroll(self):
         self.offset -= self.speed
@@ -96,9 +118,9 @@ class Stars():
         self.surface = self.update_surface()
 
     def twinkle(self, dt):
-        rand_multiplier = random.uniform(0.1, 0.5)
+        rand_mult = random.uniform(0.1, 0.5)
         self.age += dt
-        self.alpha = 255 * (math.sin(math.radians(self.age*rand_multiplier)) + 1) / 2
+        self.alpha = 255 * (math.sin(math.radians(self.age*rand_mult)) + 1) / 2
 
     def update_surface(self):
         surf = pygame.Surface((self.size, self.size))
@@ -129,14 +151,14 @@ def main():
     # class elements
     car_img = pygame.image.load("flying_car.png")
     scaled_img = pygame.transform.scale(car_img, resolution)
-    road = Road(y=resolution[1]-220, tile_width=500, height=220)
-    skyline = Skyline(y_base=(resolution[1]-219), speed=2, color=(78, 0, 78))
+    road = Road(y=resolution[1]-220, tile_width=500, height=220, speed=12)
     stars = []
-    for num in range (150):
+    for num in range (260):
         rand_pos_X = random.randrange(0, (resolution[0]-9))
-        rand_pos_y = random.randrange(0, 251)
+        rand_pos_y = random.randrange(0, 601)
         rand_pos = (rand_pos_X, rand_pos_y)
         stars.append(Stars(pos=rand_pos))
+    skyline = Skyline(y_base=(resolution[1]-219), speed=2, color=(78, 0, 78))
 
     # game logic
     running = True
@@ -148,14 +170,14 @@ def main():
                 if event.key == pygame.K_ESCAPE:
                     running = False
         screen.fill((0, 0, 35))
+        for star in stars:
+            star.twinkle(dt)
+            star.draw(screen)
         skyline.draw(screen)
         skyline.scroll()
         road.draw(screen)
         road.scroll()
-        screen.blit(scaled_img, (0, 0))
-        for star in stars:
-            star.twinkle(dt)
-            star.draw(screen)
+        screen.blit(scaled_img, (0, -2))
         pygame.display.flip()
         dt = clock.tick(30)
     pygame.quit()
