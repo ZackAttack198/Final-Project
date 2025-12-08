@@ -132,10 +132,83 @@ class Stars():
         surface.blit(self.surface, self.pos)
 
 
+class FireworkParticle():
+
+    def __init__(self, pos, velocity, lifetime, color, size, gravity):
+        self.pos = pygame.Vector2(pos)
+        self.velocity = pygame.Vector2(velocity)
+        self.lifetime = lifetime
+        self.age = 0
+        self.color = color
+        self.size = size
+        self.gravity = gravity
+
+    def update(self, dt):        
+        self.velocity.y += self.gravity * dt
+        self.pos += self.velocity * dt
+        self.age += dt
+
+    def draw(self, surface):
+        time = self.age / self.lifetime
+        if time > 1:
+            return
+        alpha = max(0, int(255 * (1 - time)))
+        color = (*self.color, alpha)
+
+        particle = pygame.Rect(
+                               int(self.pos.x),
+                               int(self.pos.y),
+                               self.size,
+                               self.size
+                               )
+
+        pygame.draw.rect(surface, color, particle)
+
+    def alive(self):
+        return self.age < self.lifetime
+
+
 class Firework():
 
-    def __init__(self):
-        pass
+    def __init__(self, position):
+        self.position = pygame.Vector2(position)
+        self.particles = []
+        self._create_burst()
+
+    def _create_burst(self):
+        count = random.randint(50, 100)
+        base_color = random.choice([
+            (255, 0, 0),
+            (255, 100, 0),
+            (255, 220, 0),
+            (0, 255, 0),
+            (0, 255, 255),
+            (0, 0, 255),
+            (150, 0, 255)
+        ])
+
+        for num in range(count):
+            angle = random.uniform(0, 2 * math.pi)
+            speed = random.uniform(80, 300)
+            velocity = pygame.Vector2(math.cos(angle) * speed,
+                                      math.sin(angle) * speed)
+            lifetime = random.uniform(0.8, 1.8)
+            size = random.randint(3, 6)
+            self.particles.append(FireworkParticle(self.position, velocity,
+                                                   lifetime, base_color,
+                                                   size, gravity=100))
+
+    def update(self, dt):
+        for p in self.particles:
+            p.update(dt)
+        self.particles = [p for p in self.particles if p.alive()]
+
+    def draw(self, surf):
+        for p in self.particles:
+            p.draw(surf)
+
+    def alive(self):
+        return any(p.alive() for p in self.particles)
 
 
 def main():
@@ -159,6 +232,7 @@ def main():
         rand_pos = (rand_pos_X, rand_pos_y)
         stars.append(Stars(pos=rand_pos))
     skyline = Skyline(y_base=(resolution[1]-219), speed=2, color=(78, 0, 78))
+    fireworks = []
 
     # game logic
     running = True
@@ -169,17 +243,25 @@ def main():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     running = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    fireworks.append(Firework(pygame.mouse.get_pos()))
+        fireworks = [fw for fw in fireworks if fw.alive]
+        for fw in fireworks:
+            fw.update(dt)
         screen.fill((0, 0, 35))
         for star in stars:
-            star.twinkle(dt)
+            star.twinkle(dt * 1000)
             star.draw(screen)
         skyline.draw(screen)
         skyline.scroll()
         road.draw(screen)
         road.scroll()
         screen.blit(scaled_img, (0, -2))
+        for fw in fireworks:
+            fw.draw(screen)
         pygame.display.flip()
-        dt = clock.tick(30)
+        dt = clock.tick(30) / 1000.0
     pygame.quit()
 
 
